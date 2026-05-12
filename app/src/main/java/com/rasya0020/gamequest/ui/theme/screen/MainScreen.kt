@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Gamepad
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material3.*
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,16 +30,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rasya0020.gamequest.model.GameWithCategory
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
     onAddClick: () -> Unit,
-    onItemClick: (Long) -> Unit
+    onItemClick: (Long) -> Unit,
+    onRecycleBinClick: () -> Unit
 ) {
     val listGame by viewModel.games.collectAsState(initial = emptyList())
     val isListMode by viewModel.layoutMode.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     var showDialog by remember { mutableStateOf(false) }
     var gameIdToDelete by remember { mutableLongStateOf(-1L) }
@@ -47,17 +54,37 @@ fun MainScreen(
         onClose = { showDialog = false },
         onConfirm = {
             if (gameIdToDelete != -1L) {
-                viewModel.deleteGame(gameIdToDelete)
+                val deletedId = gameIdToDelete
+                viewModel.deleteGame(deletedId)
                 showDialog = false
+
+                scope.launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = "Game berhasil dihapus",
+                        actionLabel = "Undo",
+                        duration = SnackbarDuration.Short
+                    )
+
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.restoreGame(deletedId)
+                    }
+                }
             }
         }
     )
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("GameQuest 🎮", fontWeight = FontWeight.Bold) },
                 actions = {
+                    IconButton(onClick = onRecycleBinClick) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteSweep,
+                            contentDescription = "Buka Recycle Bin"
+                        )
+                    }
                     IconButton(onClick = { viewModel.toggleLayout() }) {
                         Icon(
                             imageVector = if (isListMode) Icons.Default.GridView else Icons.AutoMirrored.Filled.ViewList,

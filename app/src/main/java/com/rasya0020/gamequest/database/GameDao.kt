@@ -21,8 +21,22 @@ interface GameDao {
     @Update
     suspend fun updateGame(game: Game)
 
+    @Query("UPDATE game_table SET isDeleted = 1 WHERE id = :id")
+    suspend fun softDeleteById(id: Long)
+
+    @Query("UPDATE game_table SET isDeleted = 0 WHERE id = :id")
+    suspend fun restoreById(id: Long)
+
+    @Query("""
+        SELECT game_table.*, categories_table.namaKategori 
+        FROM game_table 
+        INNER JOIN categories_table ON game_table.categoryId = categories_table.categoryId
+        WHERE game_table.isDeleted = 1
+    """)
+    fun getDeletedGamesWithCategory(): Flow<List<GameWithCategory>>
+
     @Query("DELETE FROM game_table WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    suspend fun permanentDeleteById(id: Long)
 
     @Query("SELECT * FROM game_table WHERE id = :id")
     suspend fun getGameById(id: Long): Game?

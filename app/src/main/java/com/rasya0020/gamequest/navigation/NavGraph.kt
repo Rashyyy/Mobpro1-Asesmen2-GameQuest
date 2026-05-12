@@ -15,6 +15,9 @@ fun NavGraph() {
     val navController = rememberNavController()
     val context = androidx.compose.ui.platform.LocalContext.current
 
+    val database = com.rasya0020.gamequest.database.GameDb.getInstance(context)
+    val dao = database.gameDao()
+
     NavHost(navController = navController, startDestination = Screen.Main.route) {
         composable(Screen.Main.route) {
             val mainViewModel: MainViewModel = viewModel(
@@ -26,7 +29,8 @@ fun NavGraph() {
             MainScreen(
                 viewModel = mainViewModel,
                 onAddClick = { navController.navigate(Screen.AddEdit.createRoute()) },
-                onItemClick = { id -> navController.navigate(Screen.AddEdit.createRoute(id)) }
+                onItemClick = { id -> navController.navigate(Screen.AddEdit.createRoute(id)) },
+                onRecycleBinClick = { navController.navigate(Screen.RecycleBin.route) }
             )
         }
         composable(
@@ -38,6 +42,15 @@ fun NavGraph() {
             com.rasya0020.gamequest.ui.theme.screen.DetailScreen(
                 gameId = gameId,
                 onSaved = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.RecycleBin.route) {
+            val mainViewModel: MainViewModel = viewModel(
+                factory = com.rasya0020.gamequest.util.ViewModelFactory(dao, context)
+            )
+            com.rasya0020.gamequest.ui.theme.screen.RecycleBinScreen(
+                viewModel = mainViewModel,
                 onBack = { navController.popBackStack() }
             )
         }

@@ -5,4 +5,5 @@ sealed class Screen(val route: String) {
     object AddEdit : Screen("add_edit?gameId={gameId}") {
         fun createRoute(gameId: Long = -1L) = "add_edit?gameId=$gameId"
     }
+    object RecycleBin : Screen("recycle_bin")
 }

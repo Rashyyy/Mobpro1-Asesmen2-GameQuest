@@ -51,9 +51,9 @@ class DetailViewModel(private val dao: GameDao) : ViewModel() {
             initialValue = emptyList()
         )
 
-    fun delete(id: Long) {
+    fun deleteGame(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.deleteById(id)
+            dao.softDeleteById(id)
         }
     }
 }
