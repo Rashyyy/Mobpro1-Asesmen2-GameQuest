@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Gamepad
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,6 +51,8 @@ fun MainScreen(
     var showDialog by remember { mutableStateOf(false) }
     var gameIdToDelete by remember { mutableLongStateOf(-1L) }
 
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+
     DisplayAlertDialog(
         openDialog = showDialog,
         onClose = { showDialog = false },
@@ -79,6 +83,12 @@ fun MainScreen(
             TopAppBar(
                 title = { Text("GameQuest 🎮", fontWeight = FontWeight.Bold) },
                 actions = {
+                    IconButton(onClick = { viewModel.toggleTheme() }) {
+                        Icon(
+                            imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            contentDescription = "Ganti Tema"
+                        )
+                    }
                     IconButton(onClick = onRecycleBinClick) {
                         Icon(
                             imageVector = Icons.Default.DeleteSweep,
@@ -156,47 +166,60 @@ fun GameItem(item: GameWithCategory, onClick: () -> Unit, onDelete: () -> Unit) 
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Gamepad,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = item.game.judul,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Gamepad,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
-                Surface(
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    shape = RoundedCornerShape(4.dp),
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Column (modifier = Modifier.weight(1f)){
                     Text(
-                        text = item.namaKategori,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        text = item.game.judul,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = item.namaKategori,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                    Text(
+                        text = "Gaya: ${item.game.gayaMain}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Target: ${item.game.targetJam} Jam",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = Color.Gray
                     )
                 }
-                Text(
-                    text = "Gaya: ${item.game.gayaMain}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "Target: ${item.game.targetJam} Jam",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
-                )
+                    Spacer(modifier = Modifier.width(32.dp))
             }
-            IconButton(onClick = onDelete){
-                Icon(Icons.Default.Delete, contentDescription = "Delete Game", tint = Color.Red)
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Game",
+                    tint = Color.Red.copy(alpha = 0.7f),
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }

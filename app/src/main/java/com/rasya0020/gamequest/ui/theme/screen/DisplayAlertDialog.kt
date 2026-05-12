@@ -19,7 +19,7 @@ fun DisplayAlertDialog(
                 Text(text = "Hapus Game?")
             },
             text = {
-                Text(text = "Apakah kamu yakin ingin menghapus data game ini? Tindakan ini tidak bisa dibatalkan.")
+                Text(text = "Apakah kamu yakin ingin menghapus data game ini?")
             },
             confirmButton = {
                 Button(

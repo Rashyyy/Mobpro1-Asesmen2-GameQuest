@@ -33,6 +33,19 @@ class MainViewModel(private val dao: GameDao, private val dataStore: SettingsDat
         }
     }
 
+    val isDarkMode: StateFlow<Boolean> = dataStore.themeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    fun toggleTheme() {
+        viewModelScope.launch {
+            dataStore.saveTheme(!isDarkMode.value)
+        }
+    }
+
     fun deleteGame(id: Long) {
         viewModelScope.launch {
             dao.softDeleteById(id)
