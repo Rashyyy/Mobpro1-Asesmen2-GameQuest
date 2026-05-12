@@ -9,6 +9,6 @@ data class Game (
     val id: Long = 0,
     val judul: String,
     val gayaMain: String,
-    val waktuMain: Int,
+    val waktuMain: Int = 0,
     val targetJam: Int
 )

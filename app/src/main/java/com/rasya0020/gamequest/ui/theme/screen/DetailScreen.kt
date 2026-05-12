@@ -21,10 +21,16 @@ fun DetailScreen(
     gameId: Long = -1L,
     onSaved: () -> Unit,
     onBack: () -> Unit,
-    viewModel: DetailViewModel = viewModel(
-        factory = ViewModelFactory(GameDb.getInstance(LocalContext.current).gameDao())
-    )
 ) {
+    val context = LocalContext.current
+
+    val viewModel: DetailViewModel = viewModel(
+        factory = ViewModelFactory(
+            GameDb.getInstance(context).gameDao(),
+            context
+            )
+    )
+
     var judul by remember { mutableStateOf("") }
     var gaya by remember { mutableStateOf("") }
     var target by remember { mutableStateOf("") }

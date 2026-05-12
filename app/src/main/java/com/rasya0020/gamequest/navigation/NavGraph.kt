@@ -7,23 +7,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.rasya0020.gamequest.ui.screen.MainScreen
-import com.rasya0020.gamequest.ui.screen.MainViewModel
-
-sealed class Screen(val route: String) {
-    object Main : Screen("main")
-    object AddEdit : Screen("add_edit?gameId={gameId}") {
-        fun createRoute(gameId: Long = -1L) = "add_edit?gameId=$gameId"
-    }
-}
+import com.rasya0020.gamequest.ui.theme.screen.MainScreen
+import com.rasya0020.gamequest.ui.theme.screen.MainViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
-    val mainViewModel: MainViewModel = viewModel()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     NavHost(navController = navController, startDestination = Screen.Main.route) {
         composable(Screen.Main.route) {
+            val mainViewModel: MainViewModel = viewModel(
+                factory = com.rasya0020.gamequest.util.ViewModelFactory(
+                    com.rasya0020.gamequest.database.GameDb.getInstance(context).gameDao(),
+                    context
+                )
+            )
             MainScreen(
                 viewModel = mainViewModel,
                 onAddClick = { navController.navigate(Screen.AddEdit.createRoute()) },
@@ -33,8 +32,14 @@ fun NavGraph() {
         composable(
             route = Screen.AddEdit.route,
             arguments = listOf(navArgument("gameId") { type = NavType.LongType; defaultValue = -1L })
-        ) {
+        ) { backStackEntry ->
+            val gameId = backStackEntry.arguments?.getLong("gameId") ?: -1L
 
+            com.rasya0020.gamequest.ui.theme.screen.DetailScreen(
+                gameId = gameId,
+                onSaved = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
