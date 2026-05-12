@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Add
@@ -26,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rasya0020.gamequest.model.Game
+import com.rasya0020.gamequest.model.GameWithCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +46,10 @@ fun MainScreen(
         openDialog = showDialog,
         onClose = { showDialog = false },
         onConfirm = {
-            if (gameIdToDelete != -1L) viewModel.deleteGame(gameIdToDelete)
+            if (gameIdToDelete != -1L) {
+                viewModel.deleteGame(gameIdToDelete)
+                showDialog = false
+            }
         }
     )
 
@@ -82,12 +86,12 @@ fun MainScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(listGame) { game ->
+                items(listGame) { item ->
                     GameItem(
-                        game = game,
-                        onClick = { onItemClick(game.id) },
+                        item = item,
+                        onClick = { onItemClick(item.game.id) },
                         onDelete = {
-                            gameIdToDelete = game.id
+                            gameIdToDelete = item.game.id
                             showDialog = true
                         }
                     )
@@ -102,12 +106,12 @@ fun MainScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ){
-                items(listGame) { game ->
+                items(listGame) { item ->
                     GameItem(
-                        game = game,
-                        onClick = { onItemClick(game.id) },
+                        item = item,
+                        onClick = { onItemClick(item.game.id) },
                         onDelete = {
-                            gameIdToDelete = game.id
+                            gameIdToDelete = item.game.id
                             showDialog = true
                         }
                     )
@@ -118,7 +122,7 @@ fun MainScreen(
 }
 
 @Composable
-fun GameItem(game: Game, onClick: () -> Unit, onDelete: () -> Unit) {
+fun GameItem(item: GameWithCategory, onClick: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,16 +142,28 @@ fun GameItem(game: Game, onClick: () -> Unit, onDelete: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    text = game.judul,
+                    text = item.game.judul,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(4.dp),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    Text(
+                        text = item.namaKategori,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
                 Text(
-                    text = "Gaya: ${game.gayaMain}",
+                    text = "Gaya: ${item.game.gayaMain}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Target: ${game.targetJam} Jam",
+                    text = "Target: ${item.game.targetJam} Jam",
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
