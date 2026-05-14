@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,19 +47,19 @@ fun MainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    var showDialog by remember { mutableStateOf(false) }
-    var gameIdToDelete by remember { mutableLongStateOf(-1L) }
+    val showDialog = remember { mutableStateOf(false) }
+    val gameIdToDelete = remember { mutableLongStateOf(-1L) }
 
     val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     DisplayAlertDialog(
-        openDialog = showDialog,
-        onClose = { showDialog = false },
+        openDialog = showDialog.value,
+        onClose = { showDialog.value = false },
         onConfirm = {
-            if (gameIdToDelete != -1L) {
-                val deletedId = gameIdToDelete
+            if (gameIdToDelete.longValue != -1L) {
+                val deletedId = gameIdToDelete.longValue
                 viewModel.deleteGame(deletedId)
-                showDialog = false
+                showDialog.value = false
 
                 scope.launch {
                     val result = snackbarHostState.showSnackbar(
@@ -128,8 +127,8 @@ fun MainScreen(
                         item = item,
                         onClick = { onItemClick(item.game.id) },
                         onDelete = {
-                            gameIdToDelete = item.game.id
-                            showDialog = true
+                            gameIdToDelete.longValue = item.game.id
+                            showDialog.value = true
                         }
                     )
                 }
@@ -148,8 +147,8 @@ fun MainScreen(
                         item = item,
                         onClick = { onItemClick(item.game.id) },
                         onDelete = {
-                            gameIdToDelete = item.game.id
-                            showDialog = true
+                            gameIdToDelete.longValue = item.game.id
+                            showDialog.value = true
                         }
                     )
                 }
@@ -163,6 +162,8 @@ fun GameItem(item: GameWithCategory, onClick: () -> Unit, onDelete: () -> Unit) 
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .height(200.dp)
+            .padding(8.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {

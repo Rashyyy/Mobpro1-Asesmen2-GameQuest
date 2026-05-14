@@ -34,7 +34,7 @@ fun DetailScreen(
             )
     )
 
-    var showError by remember { mutableStateOf(false) }
+    val showError = remember { mutableStateOf(false) }
 
     var judul by remember { mutableStateOf("") }
     var gaya by remember { mutableStateOf("") }
@@ -43,8 +43,8 @@ fun DetailScreen(
     val categories by viewModel.allCategories.collectAsState(initial = emptyList())
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var expanded by remember { mutableStateOf(false) }
-
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    
+    val showDeleteDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(gameId) {
         if (gameId != -1L) {
@@ -58,22 +58,22 @@ fun DetailScreen(
         }
     }
 
-    if (showDeleteDialog) {
+    if (showDeleteDialog.value) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = { showDeleteDialog.value = false },
             title = { Text("Hapus Game") },
             text = { Text("Pindahkan game ini ke Recycle Bin?") },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteGame(gameId)
-                    showDeleteDialog = false
+                    showDeleteDialog.value = false
                     onSaved()
                 }) {
                     Text("Hapus", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
+                TextButton(onClick = { showDeleteDialog.value = false }) {
                     Text("Batal")
                 }
             }
@@ -91,7 +91,7 @@ fun DetailScreen(
                 },
                 actions = {
                     if (gameId != -1L){
-                        IconButton(onClick = { showDeleteDialog = true }) {
+                        IconButton(onClick = { showDeleteDialog.value = true }) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete Game")
                         }
                     }
@@ -102,12 +102,12 @@ fun DetailScreen(
             FloatingActionButton(onClick = {
                 val targetInt = target.toIntOrNull()
                 if (judul.isBlank() || gaya.isBlank() || target.isBlank() || selectedCategory == null){
-                    showError = true
+                    showError.value = true
                     Toast.makeText(context, "Semua data harus diisi", Toast.LENGTH_SHORT).show()
                 } else if (targetInt == null) {
                     Toast.makeText(context, "Target harus berupa angka", Toast.LENGTH_SHORT).show()
                 } else {
-                    showError = false
+                    showError.value = false
                     if (gameId == -1L) {
                         viewModel.insert(judul, gaya, targetInt, selectedCategory!!.categoryId)
                     } else {
@@ -131,10 +131,10 @@ fun DetailScreen(
                 value = judul,
                 onValueChange = {
                     judul = it
-                    if (it.isNotBlank()) showError = false
+                    if (it.isNotBlank()) showError.value = false
                 },
                 label = { Text("Judul Game") },
-                isError = showError && judul.isBlank(),
+                isError = showError.value && judul.isBlank(),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -149,7 +149,7 @@ fun DetailScreen(
                     label = { Text("Kategori") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                    isError = showError && selectedCategory == null
+                    isError = showError.value && selectedCategory == null
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -161,7 +161,7 @@ fun DetailScreen(
                             onClick = {
                                 selectedCategory = category
                                 expanded = false
-                                showError = false
+                                showError.value = false
                             }
                         )
                     }
@@ -172,10 +172,10 @@ fun DetailScreen(
                 value = gaya,
                 onValueChange = {
                     gaya = it
-                    if (it.isNotBlank()) showError = false
+                    if (it.isNotBlank()) showError.value = false
                 },
                 label = { Text("Gaya Main") },
-                isError = showError && gaya.isBlank(),
+                isError = showError.value && gaya.isBlank(),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -184,10 +184,10 @@ fun DetailScreen(
                 value = target,
                 onValueChange = {
                     target = it
-                    if (it.isNotBlank()) showError = false
+                    if (it.isNotBlank()) showError.value = false
                 },
                 label = { Text("Target Jam") },
-                isError = showError && target.isBlank(),
+                isError = showError.value && target.isBlank(),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true
